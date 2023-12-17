@@ -1,14 +1,14 @@
 import pygame
 
+from data.load_image import load_image
 
-class Character:
-    def __init__(self, max_hp, sprite, speed, weapons, cords):
-        self.max_hp, self.current_hp = max_hp, max_hp
-        self.sprite = pygame.image.load(f"resources/{sprite}")
-        self.speed = speed
-        self.weapons = weapons
-        self.pos_x, self.pos_y = cords
 
-    def render(self, screen):
-        screen.fill("black")
-        screen.blit(self.sprite, (self.pos_x, self.pos_y))
+class Character(pygame.sprite.Sprite):
+    image = load_image("enemy_01.png")
+
+    def __init__(self, pos_x, pos_y, *groups):
+        super().__init__(*groups)
+        self.image = Character.image
+        self.rect = self.image.get_rect()
+        self.rect.x = pos_x
+        self.rect.y = pos_y
