@@ -52,3 +52,13 @@ class Character(pygame.sprite.Sprite):
             self.cur_frame = 1
         self.image = self.frames[self.dir][self.cur_frame]
         clock.tick(30)
+
+
+class Fireball(pygame.sprite.Sprite):
+    def __init__(self, x, y, image, target_x, target_y, *groups):
+        super().__init__(*groups)
+        self.x = x
+        self.y = y
+        self.target_x = target_x
+        self.target_y = target_y
+        self.image = None

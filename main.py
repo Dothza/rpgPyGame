@@ -2,6 +2,7 @@ import pygame
 import sys
 from data.load_image import load_image
 from data.characters import Character
+from data.characters import Fireball
 
 SIZE_WINDOW = (800, 600)
 
