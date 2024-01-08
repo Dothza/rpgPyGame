@@ -1,6 +1,10 @@
 import pygame
+import os
 
 clock = pygame.time.Clock()
+pygame.mixer.init()
+
+fireball_sound = pygame.mixer.Sound(os.path.join("resources", "fireball.wav"))
 
 
 class Character(pygame.sprite.Sprite):
@@ -8,7 +12,6 @@ class Character(pygame.sprite.Sprite):
         super().__init__(*groups)
         self.frames = []
         self.speed = 5
-        self.x, self.y = pos_x, pos_y
         self.cut(image, 4, 4)
         self.dir = 0
         self.cur_frame = 0
@@ -55,10 +58,49 @@ class Character(pygame.sprite.Sprite):
 
 
 class Fireball(pygame.sprite.Sprite):
-    def __init__(self, x, y, image, target_x, target_y, *groups):
+    def __init__(self, image, pos_x, pos_y, direct, *groups):
         super().__init__(*groups)
-        self.x = x
-        self.y = y
-        self.target_x = target_x
-        self.target_y = target_y
-        self.image = None
+        fireball_sound.play()
+        self.dir = direct
+        self.frames = []
+        self.speed = 10
+        self.x, self.y = pos_x, pos_y
+        self.cut(image, 4, 1)
+        self.cur_frame = 0
+        self.image = self.frames[self.cur_frame]
+        self.rect = self.rect.move(pos_x, pos_y)
+
+    def cut(self, sheet, col, row):
+        self.rect = pygame.Rect(0, 0, sheet.get_width() // col,
+                                sheet.get_height() // row)
+        for j in range(row):
+            for i in range(col):
+                frame_location = (self.rect.w * i, self.rect.h * j)
+                if self.dir == 0:
+                    self.frames.append(pygame.transform.rotate(sheet.subsurface(pygame.Rect(
+                        frame_location, self.rect.size)), 270))
+                elif self.dir == 1:
+                    self.frames.append(pygame.transform.rotate(sheet.subsurface(pygame.Rect(
+                        frame_location, self.rect.size)), 180))
+                elif self.dir == 2:
+                    self.frames.append(pygame.transform.rotate(sheet.subsurface(pygame.Rect(
+                        frame_location, self.rect.size)), 0))
+                elif self.dir == 3:
+                    self.frames.append(pygame.transform.rotate(sheet.subsurface(pygame.Rect(
+                        frame_location, self.rect.size)), 90))
+
+    def update(self):
+        # dir 0 = down
+        if self.dir == 0:
+            self.rect = self.rect.move(0, self.speed)
+        # dir 1 = left
+        elif self.dir == 1:
+            self.rect = self.rect.move(-self.speed, 0)
+        # dir 2 = right
+        elif self.dir == 2:
+            self.rect = self.rect.move(self.speed, 0)
+        # dir 3 = up
+        elif self.dir == 3:
+            self.rect = self.rect.move(0, -self.speed)
+        self.cur_frame = (self.cur_frame + 1) % len(self.frames)
+        self.image = self.frames[self.cur_frame]
