@@ -17,6 +17,7 @@ class Character(pygame.sprite.Sprite):
         self.cur_frame = 0
         self.image = self.frames[self.cur_frame]
         self.rect = self.rect.move(pos_x, pos_y)
+        #self.area_rect = pygame.Rect(100, 100, 100, 100)
 
     def cut(self, sheet, col, row):
         self.rect = pygame.Rect(0, 0, sheet.get_width() // col,
@@ -104,3 +105,32 @@ class Fireball(pygame.sprite.Sprite):
             self.rect = self.rect.move(0, -self.speed)
         self.cur_frame = (self.cur_frame + 1) % len(self.frames)
         self.image = self.frames[self.cur_frame]
+
+
+class Enemy(pygame.sprite.Sprite):
+    def __init__(self, image, pos_x, pos_y, *groups):
+        super().__init__(*groups)
+        self.frames = []
+        self.speed = 7
+        self.cut(image, 4, 4)
+        self.dir = 0
+        self.cur_frame = 0
+        self.image = self.frames[self.cur_frame]
+        self.rect = self.rect.move(pos_x, pos_y)
+        self.area_rect = pygame.Rect(50, 50, 100, 100)
+
+    def cut(self, sheet, col, row):
+        self.rect = pygame.Rect(0, 0, sheet.get_width() // col,
+                                sheet.get_height() // row)
+        for j in range(col):
+            frames_col = []
+            for i in range(row):
+                frame_location = (self.rect.w * i, self.rect.h * j)
+                frames_col.append(sheet.subsurface(pygame.Rect(
+                    frame_location, self.rect.size)))
+            self.frames.append(frames_col)
+
+    def update(self):
+        self.image = self.frames[self.dir][self.cur_frame]
+        clock.tick(30)
+
