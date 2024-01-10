@@ -11,7 +11,7 @@ fireballs = pygame.sprite.Group()
 
 clock = pygame.time.Clock()
 char = Character(load_image("char.png"), 100, 100, all_sprites)
-enemy = Enemy(load_image("enemy.png"), 105, 105, all_sprites)
+enemy = Enemy(load_image("enemy.png"), 50, 50, all_sprites)
 
 
 def terminate():
