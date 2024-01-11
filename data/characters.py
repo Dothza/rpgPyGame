@@ -106,6 +106,13 @@ class Fireball(pygame.sprite.Sprite):
         self.image = self.frames[self.cur_frame]
 
 
+def is_detected(cord_x, cord_y):
+    if cord_x >= 500:
+        return False
+    else:
+        pass
+
+
 class Enemy(pygame.sprite.Sprite):
     def __init__(self, image, pos_x, pos_y, *groups):
         super().__init__(*groups)
@@ -117,7 +124,6 @@ class Enemy(pygame.sprite.Sprite):
         self.image = self.frames[self.cur_frame]
         self.rect = self.rect.move(pos_x, pos_y)
         self.area_rect = pygame.Rect(50, 50, 100, 100)
-        self.detection = False
 
     def cut(self, sheet, col, row):
         self.rect = pygame.Rect(0, 0, sheet.get_width() // col,
@@ -131,7 +137,7 @@ class Enemy(pygame.sprite.Sprite):
             self.frames.append(frames_col)
 
     def update(self):
-        if not self.detection:
+        if not is_detected(self.rect.x, self.rect.y):
             if self.rect.x != 200 and self.rect.y == 50:
                 self.rect.x += 5
                 self.dir = 2
