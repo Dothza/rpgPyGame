@@ -1,5 +1,6 @@
 import pygame
 import os
+from data.load_image import load_image
 
 clock = pygame.time.Clock()
 pygame.mixer.init()
@@ -11,7 +12,7 @@ class Character(pygame.sprite.Sprite):
     def __init__(self, image, pos_x, pos_y, *groups):
         super().__init__(*groups)
         self.frames = []
-        self.speed = 5
+        self.speed = 7
         self.cut(image, 4, 4)
         self.dir = 0
         self.cur_frame = 0
@@ -106,13 +107,6 @@ class Fireball(pygame.sprite.Sprite):
         self.image = self.frames[self.cur_frame]
 
 
-def is_detected(cord_x, cord_y):
-    if cord_x >= 500:
-        return False
-    else:
-        pass
-
-
 class Enemy(pygame.sprite.Sprite):
     def __init__(self, image, pos_x, pos_y, *groups):
         super().__init__(*groups)
@@ -123,7 +117,6 @@ class Enemy(pygame.sprite.Sprite):
         self.cur_frame = 0
         self.image = self.frames[self.cur_frame]
         self.rect = self.rect.move(pos_x, pos_y)
-        self.area_rect = pygame.Rect(50, 50, 100, 100)
 
     def cut(self, sheet, col, row):
         self.rect = pygame.Rect(0, 0, sheet.get_width() // col,
@@ -136,26 +129,38 @@ class Enemy(pygame.sprite.Sprite):
                     frame_location, self.rect.size)))
             self.frames.append(frames_col)
 
-    def update(self):
-        if not is_detected(self.rect.x, self.rect.y):
-            if self.rect.x != 200 and self.rect.y == 50:
-                self.rect.x += 5
-                self.dir = 2
-                self.cur_frame = (self.cur_frame + 1) % len(self.frames[self.dir])
-            elif self.rect.x == 200 and self.rect.y != 200:
-                self.rect.y += 5
-                self.dir = 0
-                self.cur_frame = (self.cur_frame + 1) % len(self.frames[self.dir])
-            elif self.rect.x != 0 and self.rect.y == 200:
+    def update(self, c_pos_x, c_pos_y, detection):
+        if not detection:
+            if self.rect.x > 200:
                 self.rect.x -= 5
-                self.dir = 1
-                self.cur_frame = (self.cur_frame + 1) % len(self.frames[self.dir])
-            elif self.rect.x == 0 and self.rect.y != 0:
-                self.rect.y -= 5
-                self.dir = 3
-                self.cur_frame = (self.cur_frame + 1) % len(self.frames[self.dir])
+            else:
+                if self.rect.x != 200 and self.rect.y == 50:
+                    self.rect.x += 5
+                    self.dir = 1
+                    self.cur_frame = (self.cur_frame + 1) % len(self.frames[self.dir])
+                elif self.rect.x == 200 and self.rect.y != 200:
+                    self.rect.y += 5
+                    self.dir = 3
+                    self.cur_frame = (self.cur_frame + 1) % len(self.frames[self.dir])
+                elif self.rect.x != 0 and self.rect.y == 200:
+                    self.rect.x -= 5
+                    self.dir = 1
+                    self.cur_frame = (self.cur_frame + 1) % len(self.frames[self.dir])
+                elif self.rect.x == 0 and self.rect.y != 0:
+                    self.rect.y -= 5
+                    self.dir = 3
+                    self.cur_frame = (self.cur_frame + 1) % len(self.frames[self.dir])
         else:
-            pass
+            if self.rect.x <= 700:
+                if self.rect.x < c_pos_x:
+                    self.rect.x += 5
+                if self.rect.y < c_pos_y:
+                    self.rect.y += 5
+                if self.rect.y > c_pos_y:
+                    self.rect.y -= 5
+                if self.rect.x > c_pos_x:
+                    self.rect.x -= 5
+
         self.image = self.frames[self.dir][self.cur_frame]
         # print(self.rect.x, self.rect.y)
         clock.tick(30)

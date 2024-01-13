@@ -10,8 +10,22 @@ all_sprites = pygame.sprite.Group()
 fireballs = pygame.sprite.Group()
 
 clock = pygame.time.Clock()
-char = Character(load_image("char.png"), 100, 100, all_sprites)
+char = Character(load_image("char.png"), 350, 500, all_sprites)
 enemy = Enemy(load_image("enemy.png"), 50, 50, all_sprites)
+
+
+def is_detected(cord_x, cord_y, char_cord_x, char_cord_y):
+    if cord_x >= 700:
+        detection = False
+        return detection
+    else:
+        x_border1 = cord_x - 200
+        x_border2 = cord_x + 200
+        y_border_1 = cord_y - 200
+        y_border_2 = cord_y + 200
+        if x_border1 <= char_cord_x <= x_border2 and y_border_1 <= char_cord_y <= y_border_2:
+            detection = True
+            return detection
 
 
 def terminate():
@@ -29,7 +43,8 @@ def main():
                 Fireball(load_image("fireball.png"), char.rect.x,
                          char.rect.y, char.dir, all_sprites, fireballs)
         char.update()
-        enemy.update()
+        enemy.update(char.rect.x, char.rect.y, is_detected(enemy.rect.x, enemy.rect.y, char.rect.x, char.rect.y))
+        print(is_detected(enemy.rect.x, enemy.rect.y, char.rect.x, char.rect.y))
         fireballs.update()
         screen.fill((0, 0, 0))
         all_sprites.draw(screen)
