@@ -115,6 +115,7 @@ class Enemy(pygame.sprite.Sprite):
         self.cut(image, 4, 4)
         self.dir = 0
         self.cur_frame = 0
+        self.speed = 5
         self.image = self.frames[self.cur_frame]
         self.rect = self.rect.move(pos_x, pos_y)
 
@@ -130,17 +131,24 @@ class Enemy(pygame.sprite.Sprite):
             self.frames.append(frames_col)
 
     def update(self, c_pos_x, c_pos_y, detection):
-        if not detection:
-            if self.rect.x > 200:
+        if not detection or self.rect.x >= 700:
+            if self.rect.x > 200 and self.rect.y > 200:
                 self.rect.x -= 5
+                self.rect.y -= 5
+            elif self.rect.x > 200 > self.rect.y:
+                self.rect.x -= 5
+                self.rect.y += 5
+            elif self.rect.x < 200 < self.rect.y:
+                self.rect.x -= 5
+                self.rect.y += 5
             else:
                 if self.rect.x != 200 and self.rect.y == 50:
                     self.rect.x += 5
-                    self.dir = 1
+                    self.dir = 2
                     self.cur_frame = (self.cur_frame + 1) % len(self.frames[self.dir])
                 elif self.rect.x == 200 and self.rect.y != 200:
                     self.rect.y += 5
-                    self.dir = 3
+                    self.dir = 0
                     self.cur_frame = (self.cur_frame + 1) % len(self.frames[self.dir])
                 elif self.rect.x != 0 and self.rect.y == 200:
                     self.rect.x -= 5
@@ -154,13 +162,20 @@ class Enemy(pygame.sprite.Sprite):
             if self.rect.x <= 700:
                 if self.rect.x < c_pos_x:
                     self.rect.x += 5
+                    self.dir = 2
+                    self.cur_frame = (self.cur_frame + 1) % len(self.frames[self.dir])
                 if self.rect.y < c_pos_y:
                     self.rect.y += 5
+                    self.dir = 0
+                    self.cur_frame = (self.cur_frame + 1) % len(self.frames[self.dir])
                 if self.rect.y > c_pos_y:
                     self.rect.y -= 5
+                    self.dir = 3
+                    self.cur_frame = (self.cur_frame + 1) % len(self.frames[self.dir])
                 if self.rect.x > c_pos_x:
                     self.rect.x -= 5
+                    self.dir = 1
+                    self.cur_frame = (self.cur_frame + 1) % len(self.frames[self.dir])
 
         self.image = self.frames[self.dir][self.cur_frame]
-        # print(self.rect.x, self.rect.y)
         clock.tick(30)

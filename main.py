@@ -44,7 +44,6 @@ def main():
                          char.rect.y, char.dir, all_sprites, fireballs)
         char.update()
         enemy.update(char.rect.x, char.rect.y, is_detected(enemy.rect.x, enemy.rect.y, char.rect.x, char.rect.y))
-        print(is_detected(enemy.rect.x, enemy.rect.y, char.rect.x, char.rect.y))
         fireballs.update()
         screen.fill((0, 0, 0))
         all_sprites.draw(screen)
