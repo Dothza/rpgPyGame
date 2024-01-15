@@ -42,8 +42,12 @@ def main():
             elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                 Fireball(load_image("fireball.png"), char.rect.x,
                          char.rect.y, char.dir, all_sprites, fireballs)
+
         char.update()
         enemy.update(char.rect.x, char.rect.y, is_detected(enemy.rect.x, enemy.rect.y, char.rect.x, char.rect.y))
+        if is_detected(enemy.rect.x, enemy.rect.y, char.rect.x, char.rect.y):
+            enemy.Enemy_Fireball(load_image("fireball_enemy.png"), enemy.rect.x, enemy.rect.y, enemy.dir, all_sprites,
+                                 fireballs)
         fireballs.update()
         screen.fill((0, 0, 0))
         all_sprites.draw(screen)
