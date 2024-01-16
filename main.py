@@ -1,9 +1,10 @@
 import pygame
 import sys
 from data.load_image import load_image
-from data.characters import Character
+from data.characters import Character, Enemy_Fireball
 from data.characters import Fireball
 from data.characters import Enemy
+import random
 
 SIZE_WINDOW = (800, 600)
 all_sprites = pygame.sprite.Group()
@@ -45,9 +46,10 @@ def main():
 
         char.update()
         enemy.update(char.rect.x, char.rect.y, is_detected(enemy.rect.x, enemy.rect.y, char.rect.x, char.rect.y))
-        if is_detected(enemy.rect.x, enemy.rect.y, char.rect.x, char.rect.y):
-            enemy.Enemy_Fireball(load_image("fireball_enemy.png"), enemy.rect.x, enemy.rect.y, enemy.dir, all_sprites,
-                                 fireballs)
+        if is_detected(enemy.rect.x, enemy.rect.y, char.rect.x, char.rect.y) and random.randint(1, 4) == 3:
+            Enemy_Fireball(load_image("fireball_enemy.png"), enemy.rect.x, enemy.rect.y, enemy.dir, all_sprites,
+                           fireballs)
+            clock.tick()
         fireballs.update()
         screen.fill((0, 0, 0))
         all_sprites.draw(screen)
