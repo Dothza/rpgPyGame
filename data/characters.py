@@ -1,6 +1,5 @@
 import pygame
 import os
-from data.load_image import load_image
 
 clock = pygame.time.Clock()
 pygame.mixer.init()
@@ -12,6 +11,7 @@ class Character(pygame.sprite.Sprite):
     def __init__(self, image, pos_x, pos_y, *groups):
         super().__init__(*groups)
         self.frames = []
+        self.hp = 100
         self.speed = 7
         self.cut(image, 4, 4)
         self.dir = 0
@@ -111,7 +111,7 @@ class Enemy(pygame.sprite.Sprite):
     def __init__(self, image, pos_x, pos_y, *groups):
         super().__init__(*groups)
         self.frames = []
-        self.speed = 4
+        self.hp = 75
         self.cut(image, 4, 4)
         self.dir = 0
         self.cur_frame = 0
@@ -133,55 +133,48 @@ class Enemy(pygame.sprite.Sprite):
     def update(self, c_pos_x, c_pos_y, detection):
         if not detection or self.rect.x >= 700:
             if self.rect.x > 200 and self.rect.y > 200:
-                self.rect.x -= 5
-                self.rect.y -= 5
+                self.rect.x -= self.speed
+                self.rect.y -= self.speed
             elif self.rect.x > 200 > self.rect.y:
-                self.rect.x -= 5
-                self.rect.y += 5
+                self.rect.x -= self.speed
+                self.rect.y += self.speed
             elif self.rect.x < 200 < self.rect.y:
-                self.rect.x -= 5
-                self.rect.y += 5
+                self.rect.x -= self.speed
+                self.rect.y += self.speed
             else:
                 if self.rect.x != 200 and self.rect.y == 50:
-                    self.rect.x += 5
+                    self.rect.x += self.speed
                     self.dir = 2
-                    self.cur_frame = (self.cur_frame + 1) % len(self.frames[self.dir])
                 elif self.rect.x == 200 and self.rect.y != 200:
-                    self.rect.y += 5
+                    self.rect.y += self.speed
                     self.dir = 0
-                    self.cur_frame = (self.cur_frame + 1) % len(self.frames[self.dir])
                 elif self.rect.x != 0 and self.rect.y == 200:
-                    self.rect.x -= 5
+                    self.rect.x -= self.speed
                     self.dir = 1
-                    self.cur_frame = (self.cur_frame + 1) % len(self.frames[self.dir])
                 elif self.rect.x == 0 and self.rect.y != 0:
-                    self.rect.y -= 5
+                    self.rect.y -= self.speed
                     self.dir = 3
-                    self.cur_frame = (self.cur_frame + 1) % len(self.frames[self.dir])
         else:
             if self.rect.x <= 700:
                 if self.rect.x < c_pos_x:
-                    self.rect.x += 5
+                    self.rect.x += self.speed
                     self.dir = 2
-                    self.cur_frame = (self.cur_frame + 1) % len(self.frames[self.dir])
                 if self.rect.y < c_pos_y:
-                    self.rect.y += 5
+                    self.rect.y += self.speed
                     self.dir = 0
-                    self.cur_frame = (self.cur_frame + 1) % len(self.frames[self.dir])
                 if self.rect.y > c_pos_y:
-                    self.rect.y -= 5
+                    self.rect.y -= self.speed
                     self.dir = 3
-                    self.cur_frame = (self.cur_frame + 1) % len(self.frames[self.dir])
                 if self.rect.x > c_pos_x:
-                    self.rect.x -= 5
+                    self.rect.x -= self.speed
                     self.dir = 1
-                    self.cur_frame = (self.cur_frame + 1) % len(self.frames[self.dir])
 
+        self.cur_frame = (self.cur_frame + 1) % len(self.frames[self.dir])
         self.image = self.frames[self.dir][self.cur_frame]
         clock.tick(30)
 
 
-class Enemy_Fireball(pygame.sprite.Sprite):
+class EnemyFireball(pygame.sprite.Sprite):
     def __init__(self, image, pos_x, pos_y, direct, *groups):
         super().__init__(*groups)
         fireball_sound.play()
