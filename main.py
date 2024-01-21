@@ -101,10 +101,10 @@ def main():
 
         for i in enemies:
             i.update(char.rect.x, char.rect.y, is_detected(enemy.rect.x, enemy.rect.y, char.rect.x, char.rect.y))
-        if is_detected(enemy.rect.x, enemy.rect.y, char.rect.x, char.rect.y) and random.randrange(
-                5) == random.randrange(5) and not end:
-            EnemyFireball(load_image("fireball_enemy.png"), enemy.rect.x, enemy.rect.y, enemy.dir, all_sprites,
-                          enemy_fireballs)
+            if is_detected(enemy.rect.x, enemy.rect.y, char.rect.x, char.rect.y) and random.randrange(
+                    5) == random.randrange(5) and not end:
+                EnemyFireball(load_image("fireball_enemy.png"), enemy.rect.x, enemy.rect.y, enemy.dir, all_sprites,
+                              enemy_fireballs)
         if pygame.sprite.spritecollideany(char, enemy_fireballs):
             char.hp -= 15
         if pygame.sprite.spritecollideany(enemy, fireballs):
