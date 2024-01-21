@@ -4,39 +4,52 @@ from data.load_image import load_image
 from data.characters import Character, EnemyFireball, Fireball, Enemy
 from data.game_over import End
 
-
 WIDTH, HEIGHT = (600, 300)
-FPS = 30
+FPS = 20
 TICK = pygame.USEREVENT + 1
 
 all_sprites = pygame.sprite.Group()
-player_sprites = pygame.sprite.Group()
+characters = pygame.sprite.Group()
 enemies = pygame.sprite.Group()
 fireballs = pygame.sprite.Group()
 enemy_fireballs = pygame.sprite.Group()
 tiles_group = pygame.sprite.Group()
+walls = pygame.sprite.Group()
 
 font = pygame.font.Font(None, 36)
 
 clock = pygame.time.Clock()
-enemy = Enemy(load_image("enemy.png"), 50, 50, all_sprites, enemies)
+
 
 class Tile(pygame.sprite.Sprite):
-    def __init__(self, tile_type, pos_x, pos_y):
-        super().__init__(tiles_group, all_sprites)
+    def __init__(self, tile_type, pos_x, pos_y, *groups):
+        super().__init__(*groups)
+        self.type = tile_type
         self.image = tile_images[tile_type]
         self.rect = self.image.get_rect().move(
             tile_width * pos_x, tile_height * pos_y)
+
 
 tile_images = {
     'wall': load_image('box.png'),
     'empty': load_image('grass.png')
 }
+
 player_image = load_image('char.png')
 
 tile_width = tile_height = 50
 
-player = None
+
+def enemy_generate(level):
+    for y in range(len(level)):
+        for x in range(len(level[y])):
+            n = random.randrange(len(level[y]))
+            if level[y][n] == ".":
+                enemy = Enemy(load_image("enemy.png"), (n * tile_width) + (tile_width // 2),
+                              (level.index(level[y]) * tile_height) + (tile_height // 2), all_sprites, enemies,
+                              characters)
+                return enemy
+
 
 def load_level(filename):
     filename = "resources/" + filename
@@ -50,6 +63,7 @@ def load_level(filename):
     # дополняем каждую строку пустыми клетками ('.')
     return list(map(lambda x: x.ljust(max_width, '.'), level_map))
 
+
 def is_detected(cord_x, cord_y, char_cord_x, char_cord_y):
     if cord_x >= 700:
         return False
@@ -61,19 +75,24 @@ def is_detected(cord_x, cord_y, char_cord_x, char_cord_y):
         if x_border1 <= char_cord_x <= x_border2 and y_border_1 <= char_cord_y <= y_border_2:
             return True
 
+
 def generate_level(level):
     new_player, x, y = None, None, None
     for y in range(len(level)):
         for x in range(len(level[y])):
             if level[y][x] == '.':
-                Tile('empty', x, y)
+                Tile('empty', x, y, all_sprites, tiles_group)
             elif level[y][x] == '#':
-                Tile('wall', x, y)
+                Tile('wall', x, y, all_sprites, tiles_group, walls)
             elif level[y][x] == '@':
-                Tile('empty', x, y)
-                new_player = Character(load_image("char.png"), 350, 200, all_sprites, player_sprites)
+                Tile('empty', x, y, all_sprites, tiles_group)
+                new_player = Character(load_image("char.png"),
+                                       (level[y].index("@") * tile_width) + (tile_width // 2),
+                                       (level.index(level[y]) * tile_height) + (tile_height // 2),
+                                       all_sprites, characters)
     # вернем игрока, а также размер поля в клетках
     return new_player, x, y
+
 
 def terminate():
     pygame.quit()
@@ -91,24 +110,28 @@ def main():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 terminate()
-            elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1 and char.hp >= 0:
+            elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1 and char.hp > 0:
                 Fireball(load_image("fireball.png"), char.rect.x,
                          char.rect.y, char.dir, all_sprites, fireballs)
             elif event.type == pygame.VIDEORESIZE:
                 cur_size = event.size
             elif event.type == TICK:
                 end.move()
-
-        for i in enemies:
-            i.update(char.rect.x, char.rect.y, is_detected(enemy.rect.x, enemy.rect.y, char.rect.x, char.rect.y))
-            if is_detected(enemy.rect.x, enemy.rect.y, char.rect.x, char.rect.y) and random.randrange(
-                    5) == random.randrange(5) and not end:
-                EnemyFireball(load_image("fireball_enemy.png"), enemy.rect.x, enemy.rect.y, enemy.dir, all_sprites,
-                              enemy_fireballs)
+        if random.randrange(5) == random.randrange(70):
+            enemy_generate(load_level('level_1.txt'))
         if pygame.sprite.spritecollideany(char, enemy_fireballs):
             char.hp -= 15
-        if pygame.sprite.spritecollideany(enemy, fireballs):
-            enemy.hp -= 25
+        for i in enemies:
+            i.update(char.rect.x, char.rect.y, is_detected(i.rect.x, i.rect.y, char.rect.x, char.rect.y))
+            if is_detected(i.rect.x, i.rect.y, char.rect.x, char.rect.y) and random.randrange(
+                    5) == random.randrange(7) and not end:
+                EnemyFireball(load_image("fireball_enemy.png"), i.rect.x, i.rect.y, i.dir, all_sprites,
+                              enemy_fireballs)
+            if pygame.sprite.spritecollideany(i, fireballs):
+                i.hp -= 25
+        for i in characters:
+            if pygame.sprite.spritecollideany(i, walls):
+                i.speed = 0
         for i in all_sprites:
             try:
                 if i.hp <= 0 and isinstance(i, Enemy):
@@ -126,8 +149,7 @@ def main():
         char.update()
         virtual_screen.fill((0, 0, 0))
         all_sprites.draw(virtual_screen)
-        enemies.draw(virtual_screen)
-        player_sprites.draw(virtual_screen)
+        characters.draw(virtual_screen)
 
         if isinstance(end, End):
             end.render(virtual_screen)

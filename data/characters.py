@@ -3,7 +3,6 @@ import os
 
 clock = pygame.time.Clock()
 pygame.mixer.init()
-
 fireball_sound = pygame.mixer.Sound(os.path.join("resources", "fireball.wav"))
 
 
@@ -55,7 +54,6 @@ class Character(pygame.sprite.Sprite):
         if not any(keys):
             self.cur_frame = 1
         self.image = self.frames[self.dir][self.cur_frame]
-        clock.tick(30)
 
 
 class Fireball(pygame.sprite.Sprite):
@@ -171,7 +169,6 @@ class Enemy(pygame.sprite.Sprite):
 
         self.cur_frame = (self.cur_frame + 1) % len(self.frames[self.dir])
         self.image = self.frames[self.dir][self.cur_frame]
-        clock.tick(30)
 
 
 class EnemyFireball(pygame.sprite.Sprite):
