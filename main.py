@@ -4,7 +4,7 @@ from data.load_image import load_image
 from data.characters import Character, EnemyFireball, Fireball, Enemy
 from data.game_over import End
 
-WIDTH, HEIGHT = (600, 300)
+WIDTH, HEIGHT = (800, 600)
 FPS = 30
 TICK = pygame.USEREVENT + 1
 
@@ -41,7 +41,7 @@ def main():
     kills = 0
     end = None
     virtual_screen = pygame.Surface((WIDTH, HEIGHT))
-    screen = pygame.display.set_mode((WIDTH, HEIGHT), pygame.RESIZABLE)
+    screen = pygame.display.set_mode((WIDTH, HEIGHT), pygame.RESIZABLE, pygame.FULLSCREEN)
     cur_size = screen.get_size()
     while True:
         for event in pygame.event.get():
