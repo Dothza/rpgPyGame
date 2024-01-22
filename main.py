@@ -4,6 +4,7 @@ from data.load_image import load_image
 from data.map import Tile, load_level
 from data.characters import Character, EnemyFireball, Fireball, Enemy
 from data.game_over import End
+from data.menu import menu
 
 WIDTH, HEIGHT = (600, 300)
 FPS = 20
@@ -71,25 +72,36 @@ def terminate():
 
 
 def main():
+    global WIDTH, HEIGHT
     kills = 0
     end = None
     virtual_screen = pygame.Surface((WIDTH, HEIGHT))
+    WIDTH, HEIGHT = (1920, 1080)
     screen = pygame.display.set_mode((WIDTH, HEIGHT), pygame.RESIZABLE)
-    cur_size = screen.get_size()
-    char, level_x, level_y = generate_level(load_level('level_1.txt'))
+    cur_size = (1920, 1080)
+    WIDTH, HEIGHT = (600, 300)
+    char, level_x, level_y = generate_level(load_level('level_2.txt'))
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 terminate()
             elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1 and char.hp > 0:
-                Fireball(load_image("fireball.png"), char.rect.x - (char.image.get_size()[0] // 2),
-                         char.rect.y - (char.image.get_size()[0] // 2), char.dir, all_sprites, fireballs)
-            elif event.type == pygame.VIDEORESIZE:
-                cur_size = event.size
+                if char.dir == 0:
+                    Fireball(load_image("fireball.png"), char.rect.x - (char.image.get_size()[0] // 2),
+                             char.rect.y - (char.image.get_size()[0] // 2), char.dir, all_sprites, fireballs)
+                elif char.dir == 1:
+                    Fireball(load_image("fireball.png"), char.rect.x - (4 * char.image.get_size()[0]),
+                             char.rect.y - (char.image.get_size()[0] // 2), char.dir, all_sprites, fireballs)
+                elif char.dir == 2:
+                    Fireball(load_image("fireball.png"), char.rect.x + (char.image.get_size()[0] // 4),
+                             char.rect.y - (char.image.get_size()[0] // 2), char.dir, all_sprites, fireballs)
+                elif char.dir == 3:
+                    Fireball(load_image("fireball.png"), char.rect.x - (char.image.get_size()[0] // 2),
+                             char.rect.y - (4 * char.image.get_size()[0]), char.dir, all_sprites, fireballs)
             elif event.type == TICK:
                 end.move()
         if random.randrange(5) == random.randrange(70):
-            enemy_generate(load_level('level_1.txt'))
+            enemy_generate(load_level('level_2.txt'))
         if pygame.sprite.spritecollideany(char, enemy_fireballs):
             char.hp -= 15
         old_cords = {}
@@ -147,4 +159,4 @@ def main():
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    sys.exit(menu(main))
