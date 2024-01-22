@@ -121,6 +121,10 @@ def main():
             enemy_generate(load_level('level_1.txt'))
         if pygame.sprite.spritecollideany(char, enemy_fireballs):
             char.hp -= 15
+        old_cords = {}
+        for i in characters:
+            old_cords[i] = (i.rect.x, i.rect.y)
+
         for i in enemies:
             i.update(char.rect.x, char.rect.y, is_detected(i.rect.x, i.rect.y, char.rect.x, char.rect.y))
             if is_detected(i.rect.x, i.rect.y, char.rect.x, char.rect.y) and random.randrange(
@@ -129,9 +133,7 @@ def main():
                               enemy_fireballs)
             if pygame.sprite.spritecollideany(i, fireballs):
                 i.hp -= 25
-        for i in characters:
-            if pygame.sprite.spritecollideany(i, walls):
-                i.speed = 0
+
         for i in all_sprites:
             try:
                 if i.hp <= 0 and isinstance(i, Enemy):
@@ -147,10 +149,13 @@ def main():
         enemy_fireballs.update()
         fireballs.update()
         char.update()
+        for i in characters:
+            if pygame.sprite.spritecollideany(i, walls):
+                i.rect.x = old_cords[i][0]
+                i.rect.y = old_cords[i][1]
         virtual_screen.fill((0, 0, 0))
         all_sprites.draw(virtual_screen)
         characters.draw(virtual_screen)
-
         if isinstance(end, End):
             end.render(virtual_screen)
             if end.x == 0:
