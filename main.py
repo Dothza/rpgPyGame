@@ -1,12 +1,14 @@
 import pygame
 import sys, random
 from data.load_image import load_image
+from data.map import Tile, load_level
 from data.characters import Character, EnemyFireball, Fireball, Enemy
 from data.game_over import End
 
 WIDTH, HEIGHT = (600, 300)
 FPS = 20
 TICK = pygame.USEREVENT + 1
+TILE_WIDTH = TILE_HEIGHT = 50
 
 all_sprites = pygame.sprite.Group()
 characters = pygame.sprite.Group()
@@ -20,24 +22,7 @@ font = pygame.font.Font(None, 36)
 
 clock = pygame.time.Clock()
 
-
-class Tile(pygame.sprite.Sprite):
-    def __init__(self, tile_type, pos_x, pos_y, *groups):
-        super().__init__(*groups)
-        self.type = tile_type
-        self.image = tile_images[tile_type]
-        self.rect = self.image.get_rect().move(
-            tile_width * pos_x, tile_height * pos_y)
-
-
-tile_images = {
-    'wall': load_image('box.png'),
-    'empty': load_image('grass.png')
-}
-
 player_image = load_image('char.png')
-
-tile_width = tile_height = 50
 
 
 def enemy_generate(level):
@@ -45,35 +30,10 @@ def enemy_generate(level):
         for x in range(len(level[y])):
             n = random.randrange(len(level[y]))
             if level[y][n] == ".":
-                enemy = Enemy(load_image("enemy.png"), (n * tile_width) + (tile_width // 2),
-                              (level.index(level[y]) * tile_height) + (tile_height // 2), all_sprites, enemies,
+                enemy = Enemy(load_image("enemy.png"), (n * TILE_WIDTH) + (TILE_WIDTH // 2),
+                              (level.index(level[y]) * TILE_HEIGHT) + (TILE_HEIGHT // 2), all_sprites, enemies,
                               characters)
                 return enemy
-
-
-def load_level(filename):
-    filename = "resources/" + filename
-    # читаем уровень, убирая символы перевода строки
-    with open(filename, 'r') as mapFile:
-        level_map = [line.strip() for line in mapFile]
-
-    # и подсчитываем максимальную длину
-    max_width = max(map(len, level_map))
-
-    # дополняем каждую строку пустыми клетками ('.')
-    return list(map(lambda x: x.ljust(max_width, '.'), level_map))
-
-
-def is_detected(cord_x, cord_y, char_cord_x, char_cord_y):
-    if cord_x >= 700:
-        return False
-    else:
-        x_border1 = cord_x - 200
-        x_border2 = cord_x + 200
-        y_border_1 = cord_y - 200
-        y_border_2 = cord_y + 200
-        if x_border1 <= char_cord_x <= x_border2 and y_border_1 <= char_cord_y <= y_border_2:
-            return True
 
 
 def generate_level(level):
@@ -87,11 +47,22 @@ def generate_level(level):
             elif level[y][x] == '@':
                 Tile('empty', x, y, all_sprites, tiles_group)
                 new_player = Character(load_image("char.png"),
-                                       (level[y].index("@") * tile_width) + (tile_width // 2),
-                                       (level.index(level[y]) * tile_height) + (tile_height // 2),
+                                       (level[y].index("@") * TILE_WIDTH) + (TILE_WIDTH // 2),
+                                       (level.index(level[y]) * TILE_HEIGHT) + (TILE_HEIGHT // 2),
                                        all_sprites, characters)
-    # вернем игрока, а также размер поля в клетках
     return new_player, x, y
+
+
+def is_detected(cord_x, cord_y, char_cord_x, char_cord_y):
+    if cord_x >= 700:
+        return False
+    else:
+        x_border1 = cord_x - 200
+        x_border2 = cord_x + 200
+        y_border_1 = cord_y - 200
+        y_border_2 = cord_y + 200
+        if x_border1 <= char_cord_x <= x_border2 and y_border_1 <= char_cord_y <= y_border_2:
+            return True
 
 
 def terminate():
@@ -111,8 +82,8 @@ def main():
             if event.type == pygame.QUIT:
                 terminate()
             elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1 and char.hp > 0:
-                Fireball(load_image("fireball.png"), char.rect.x,
-                         char.rect.y, char.dir, all_sprites, fireballs)
+                Fireball(load_image("fireball.png"), char.rect.x - (char.image.get_size()[0] // 2),
+                         char.rect.y - (char.image.get_size()[0] // 2), char.dir, all_sprites, fireballs)
             elif event.type == pygame.VIDEORESIZE:
                 cur_size = event.size
             elif event.type == TICK:
@@ -133,6 +104,13 @@ def main():
                               enemy_fireballs)
             if pygame.sprite.spritecollideany(i, fireballs):
                 i.hp -= 25
+
+        for i in fireballs:
+            if pygame.sprite.spritecollideany(i, walls):
+                i.kill()
+        for i in enemy_fireballs:
+            if pygame.sprite.spritecollideany(i, walls):
+                i.kill()
 
         for i in all_sprites:
             try:
