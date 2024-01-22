@@ -1,5 +1,6 @@
 import pygame
 import os
+import random, math
 
 clock = pygame.time.Clock()
 pygame.mixer.init()
@@ -116,6 +117,7 @@ class Enemy(pygame.sprite.Sprite):
         self.speed = 5
         self.image = self.frames[self.cur_frame]
         self.rect = self.rect.move(pos_x, pos_y)
+        self.goal = (pos_x, pos_y)
 
     def cut(self, sheet, col, row):
         self.rect = pygame.Rect(0, 0, sheet.get_width() // col,
@@ -128,30 +130,22 @@ class Enemy(pygame.sprite.Sprite):
                     frame_location, self.rect.size)))
             self.frames.append(frames_col)
 
-    def update(self, c_pos_x, c_pos_y, detection):
-        if not detection or self.rect.x >= 700:
-            if self.rect.x > 200 and self.rect.y > 200:
-                self.rect.x -= self.speed
+    def update(self, c_pos_x, c_pos_y, detection, tiles_group, TILE_WIDTH, TILE_HEIGHT):
+        if not detection:
+            if self.rect.x == self.goal[0] and self.rect.y == self.goal[1]:
+                self.goal = self.ai(tiles_group, TILE_WIDTH, TILE_HEIGHT)
+            if self.rect.x < self.goal[0]:
+                self.rect.x += self.speed
+                self.dir = 2
+            if self.rect.y < self.goal[1]:
+                self.rect.y += self.speed
+                self.dir = 0
+            if self.rect.y > self.goal[1]:
                 self.rect.y -= self.speed
-            elif self.rect.x > 200 > self.rect.y:
+                self.dir = 3
+            if self.rect.x > self.goal[0]:
                 self.rect.x -= self.speed
-                self.rect.y += self.speed
-            elif self.rect.x < 200 < self.rect.y:
-                self.rect.x -= self.speed
-                self.rect.y += self.speed
-            else:
-                if self.rect.x != 200 and self.rect.y == 50:
-                    self.rect.x += self.speed
-                    self.dir = 2
-                elif self.rect.x == 200 and self.rect.y != 200:
-                    self.rect.y += self.speed
-                    self.dir = 0
-                elif self.rect.x != 0 and self.rect.y == 200:
-                    self.rect.x -= self.speed
-                    self.dir = 1
-                elif self.rect.x == 0 and self.rect.y != 0:
-                    self.rect.y -= self.speed
-                    self.dir = 3
+                self.dir = 1
         else:
             if self.rect.x <= 700:
                 if self.rect.x < c_pos_x:
@@ -169,6 +163,21 @@ class Enemy(pygame.sprite.Sprite):
 
         self.cur_frame = (self.cur_frame + 1) % len(self.frames[self.dir])
         self.image = self.frames[self.dir][self.cur_frame]
+
+    def ai(self, tiles_group, TILE_WIDTH, TILE_HEIGHT):
+        obj_tile_x = math.ceil(self.rect.x / TILE_WIDTH) - 1
+        obj_tile_y = math.ceil(self.rect.y / TILE_HEIGHT) - 1
+        near_tiles = []
+        for i in tiles_group:
+            if i.type == 'empty':
+                if (((i.pos_x == obj_tile_x + 1) or (i.pos_x == obj_tile_x - 1)) and (
+                        (i.pos_y == obj_tile_y + 1) or (i.pos_y == obj_tile_y - 1))) or (
+                        ((i.pos_x == obj_tile_x + 1) or (i.pos_x == obj_tile_x - 1)) and (i.pos_y == obj_tile_y)) or (
+                        (i.pos_x == obj_tile_x) and ((i.pos_y == obj_tile_y + 1) or (i.pos_y == obj_tile_y - 1))):
+                    near_tiles.append(i)
+
+        res = random.choice(near_tiles)
+        return (TILE_WIDTH * res.pos_x + TILE_WIDTH // 2, TILE_HEIGHT * res.pos_y + TILE_HEIGHT // 2)
 
 
 class EnemyFireball(pygame.sprite.Sprite):

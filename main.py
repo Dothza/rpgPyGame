@@ -1,5 +1,5 @@
 import pygame
-import sys, random
+import sys, random, math
 from data.load_image import load_image
 from data.map import Tile, load_level
 from data.characters import Character, EnemyFireball, Fireball, Enemy
@@ -97,7 +97,8 @@ def main():
             old_cords[i] = (i.rect.x, i.rect.y)
 
         for i in enemies:
-            i.update(char.rect.x, char.rect.y, is_detected(i.rect.x, i.rect.y, char.rect.x, char.rect.y))
+            i.update(char.rect.x, char.rect.y, is_detected(i.rect.x, i.rect.y, char.rect.x, char.rect.y), tiles_group,
+                     TILE_WIDTH, TILE_HEIGHT)
             if is_detected(i.rect.x, i.rect.y, char.rect.x, char.rect.y) and random.randrange(
                     5) == random.randrange(7) and not end:
                 EnemyFireball(load_image("fireball_enemy.png"), i.rect.x, i.rect.y, i.dir, all_sprites,

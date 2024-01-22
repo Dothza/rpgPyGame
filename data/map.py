@@ -20,6 +20,8 @@ def load_level(filename):
 class Tile(pygame.sprite.Sprite):
     def __init__(self, tile_type, pos_x, pos_y, *groups):
         super().__init__(*groups)
+        self.pos_x = pos_x
+        self.pos_y = pos_y
         self.type = tile_type
         self.image = tile_images[tile_type]
         self.rect = self.image.get_rect().move(
