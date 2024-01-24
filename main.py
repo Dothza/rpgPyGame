@@ -1,5 +1,5 @@
 import pygame
-import sys, random, math
+import sys, random
 from data.load_image import load_image
 from data.map import Tile, load_level
 from data.characters import Character, EnemyFireball, Fireball, Enemy
@@ -71,7 +71,7 @@ def terminate():
     sys.exit()
 
 
-def main():
+def main(level_name):
     global WIDTH, HEIGHT
     kills = 0
     end = None
@@ -80,7 +80,7 @@ def main():
     screen = pygame.display.set_mode((WIDTH, HEIGHT), pygame.RESIZABLE)
     cur_size = (1920, 1080)
     WIDTH, HEIGHT = (600, 300)
-    char, level_x, level_y = generate_level(load_level('level_2.txt'))
+    char, level_x, level_y = generate_level(load_level(level_name))
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -101,7 +101,7 @@ def main():
             elif event.type == TICK:
                 end.move()
         if random.randrange(5) == random.randrange(70):
-            enemy_generate(load_level('level_2.txt'))
+            enemy_generate(load_level(level_name))
         if pygame.sprite.spritecollideany(char, enemy_fireballs):
             char.hp -= 15
         old_cords = {}
@@ -159,4 +159,5 @@ def main():
 
 
 if __name__ == "__main__":
+    level_name = menu(main)
     sys.exit(menu(main))
